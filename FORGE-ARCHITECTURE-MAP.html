@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FORGE — Architecture Map</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0a0a0f;
+    color: #e0e0e0;
+    overflow-x: hidden;
+  }
+
+  .header {
+    text-align: center;
+    padding: 40px 20px 20px;
+    background: linear-gradient(180deg, #1a1a2e 0%, #0a0a0f 100%);
+  }
+
+  .header h1 {
+    font-size: 3em;
+    font-weight: 300;
+    letter-spacing: 0.3em;
+    color: #ff6b35;
+    text-shadow: 0 0 40px rgba(255, 107, 53, 0.3);
+  }
+
+  .header .subtitle {
+    font-size: 0.9em;
+    color: #888;
+    letter-spacing: 0.15em;
+    margin-top: 8px;
+  }
+
+  .header .quote {
+    font-style: italic;
+    color: #666;
+    margin-top: 16px;
+    font-size: 0.85em;
+  }
+
+  .tabs {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    padding: 20px;
+    flex-wrap: wrap;
+  }
+
+  .tab {
+    padding: 10px 24px;
+    background: #1a1a2e;
+    border: 1px solid #2a2a4e;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9em;
+    color: #aaa;
+  }
+
+  .tab:hover { border-color: #ff6b35; color: #ff6b35; }
+  .tab.active { background: #ff6b35; color: #fff; border-color: #ff6b35; }
+
+  .view { display: none; padding: 20px; max-width: 1400px; margin: 0 auto; }
+  .view.active { display: block; }
+
+  /* Architecture Tree View */
+  .tree {
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 14px;
+    line-height: 1.8;
+    padding: 30px;
+    background: #111;
+    border-radius: 12px;
+    border: 1px solid #222;
+    overflow-x: auto;
+  }
+
+  .tree .folder { color: #ff6b35; cursor: pointer; }
+  .tree .folder:hover { text-decoration: underline; }
+  .tree .file { color: #7ec8e3; }
+  .tree .comment { color: #555; font-style: italic; }
+  .tree .highlight { background: rgba(255, 107, 53, 0.1); border-radius: 4px; padding: 2px 6px; }
+
+  /* Flow Diagram */
+  .flow-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding: 40px 20px;
+  }
+
+  .flow-box {
+    background: #1a1a2e;
+    border: 2px solid #2a2a4e;
+    border-radius: 16px;
+    padding: 24px 40px;
+    text-align: center;
+    min-width: 300px;
+    transition: all 0.3s;
+    cursor: default;
+  }
+
+  .flow-box:hover {
+    border-color: #ff6b35;
+    box-shadow: 0 0 30px rgba(255, 107, 53, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .flow-box h3 { color: #ff6b35; font-weight: 600; margin-bottom: 8px; }
+  .flow-box p { color: #888; font-size: 0.9em; }
+
+  .flow-arrow {
+    color: #ff6b35;
+    font-size: 24px;
+    opacity: 0.5;
+  }
+
+  /* Modules Grid */
+  .modules-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px 0;
+  }
+
+  .module-card {
+    background: #1a1a2e;
+    border: 1px solid #2a2a4e;
+    border-radius: 16px;
+    padding: 30px;
+    transition: all 0.3s;
+  }
+
+  .module-card:hover {
+    border-color: #ff6b35;
+    box-shadow: 0 0 30px rgba(255, 107, 53, 0.1);
+  }
+
+  .module-card .icon { font-size: 2em; margin-bottom: 12px; }
+  .module-card h3 { color: #ff6b35; margin-bottom: 10px; font-size: 1.1em; }
+  .module-card p { color: #888; font-size: 0.9em; line-height: 1.6; }
+  .module-card .tag {
+    display: inline-block;
+    background: rgba(255, 107, 53, 0.15);
+    color: #ff6b35;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75em;
+    margin-top: 12px;
+    margin-right: 4px;
+  }
+
+  /* Context Inheritance Diagram */
+  .inheritance-visual {
+    padding: 30px;
+    background: #111;
+    border-radius: 12px;
+    border: 1px solid #222;
+    overflow-x: auto;
+  }
+
+  .ctx-node {
+    display: inline-block;
+    background: #1a1a2e;
+    border: 2px solid #2a2a4e;
+    border-radius: 10px;
+    padding: 12px 20px;
+    margin: 5px;
+    font-family: monospace;
+    font-size: 13px;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .ctx-node:hover {
+    border-color: #ff6b35;
+    box-shadow: 0 0 20px rgba(255, 107, 53, 0.2);
+  }
+
+  .ctx-node.root { border-color: #ff6b35; background: rgba(255, 107, 53, 0.1); }
+  .ctx-node.branch { border-color: #4a9eff; }
+  .ctx-node.leaf { border-color: #50fa7b; }
+
+  .ctx-level {
+    padding-left: 40px;
+    border-left: 2px solid #222;
+    margin: 10px 0 10px 20px;
+  }
+
+  .ctx-arrow { color: #444; margin: 4px 0 4px 10px; font-family: monospace; }
+
+  /* Analogy Table */
+  .analogy-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #222;
+  }
+
+  .analogy-table th {
+    background: #1a1a2e;
+    padding: 16px 20px;
+    text-align: left;
+    color: #ff6b35;
+    font-weight: 600;
+    border-bottom: 2px solid #ff6b35;
+  }
+
+  .analogy-table td {
+    padding: 12px 20px;
+    border-bottom: 1px solid #1a1a2e;
+    font-size: 0.9em;
+  }
+
+  .analogy-table tr:nth-child(even) { background: rgba(26, 26, 46, 0.5); }
+  .analogy-table tr:hover { background: rgba(255, 107, 53, 0.05); }
+
+  .analogy-table .code-col { color: #7ec8e3; font-family: monospace; }
+  .analogy-table .forge-col { color: #50fa7b; font-family: monospace; }
+
+  /* Info sections */
+  .info-section {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 12px;
+    padding: 30px;
+    margin: 20px 0;
+  }
+
+  .info-section h2 {
+    color: #ff6b35;
+    font-weight: 600;
+    margin-bottom: 16px;
+    font-size: 1.3em;
+  }
+
+  .info-section p {
+    color: #aaa;
+    line-height: 1.8;
+    margin-bottom: 12px;
+  }
+
+  .principle {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    margin: 8px 0;
+    background: rgba(26, 26, 46, 0.5);
+    border-radius: 8px;
+    border-left: 3px solid #ff6b35;
+  }
+
+  .principle .num {
+    color: #ff6b35;
+    font-weight: 700;
+    font-size: 1.2em;
+    min-width: 30px;
+  }
+
+  .principle .text strong { color: #e0e0e0; }
+  .principle .text { color: #999; line-height: 1.6; }
+
+  .example-flow {
+    background: #0d0d15;
+    border: 1px solid #1a1a2e;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 16px 0;
+    font-family: monospace;
+    font-size: 0.85em;
+    line-height: 2;
+    color: #888;
+  }
+
+  .example-flow .user { color: #50fa7b; }
+  .example-flow .step { color: #7ec8e3; }
+  .example-flow .result { color: #ff6b35; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>F O R G E</h1>
+  <div class="subtitle">FRAMEWORK FOR ORCHESTRATING RESEARCH, GENERATION & ENGINEERING</div>
+  <div class="quote">"Context is Code. The filesystem is your IDE. Language is the programming language. The LLM is the runtime."</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('overview')">Overview</div>
+  <div class="tab" onclick="switchTab('structure')">Struktura</div>
+  <div class="tab" onclick="switchTab('inheritance')">Context Inheritance</div>
+  <div class="tab" onclick="switchTab('smiths')">Smiths</div>
+  <div class="tab" onclick="switchTab('flow')">Forge Loop</div>
+  <div class="tab" onclick="switchTab('analogy')">Vibe Coding Analogy</div>
+  <div class="tab" onclick="switchTab('principles')">Zasady</div>
+</div>
+
+<!-- OVERVIEW -->
+<div class="view active" id="overview">
+  <div class="info-section">
+    <h2>Czym jest FORGE?</h2>
+    <p>FORGE to osobisty meta-system w Claude Cowork. Baza operacyjna power usera, z kt&oacute;rej tworzysz skille, narzedzia, subagent&oacute;w i prompty do dowolnego AI. Jednoczesnie laboratorium badawcze do odkrywania technik context engineeringu i granic Claude Cowork.</p>
+    <p>Kluczowa innowacja: <strong>Context Inheritance</strong> — system dziedziczenia kontekst&oacute;w inspirowany programowaniem obiektowym, ale dzialajacy na plikach tekstowych. Konteksty kaskaduja jak style CSS — od og&oacute;lnych do szczeg&oacute;lowych.</p>
+  </div>
+
+  <div class="modules-grid">
+    <div class="module-card">
+      <div class="icon">&#9881;</div>
+      <h3>Orchestrator</h3>
+      <p>Punkt wejscia do calego systemu. Rozumie co potrzebujesz i routuje do odpowiedniego modulu. Tryb automatyczny lub bezposredni.</p>
+      <span class="tag">entry-point</span>
+      <span class="tag">routing</span>
+    </div>
+    <div class="module-card">
+      <div class="icon">&#128293;</div>
+      <h3>Context Engine</h3>
+      <p>Silnik dziedziczenia kontekstow. Kompiluje lancuchy kontekstow od korzenia do liscia, budujac spojny zbior instrukcji.</p>
+      <span class="tag">inheritance</span>
+      <span class="tag">resolution</span>
+    </div>
+    <div class="module-card">
+      <div class="icon">&#9879;</div>
+      <h3>Smiths (Fabryka)</h3>
+      <p>Cztery wyspecjalizowane moduly tworzenia: Prompt-Smith, Skill-Smith, Tool-Smith, Agent-Smith.</p>
+      <span class="tag">creation</span>
+      <span class="tag">factory</span>
+    </div>
+    <div class="module-card">
+      <div class="icon">&#128218;</div>
+      <h3>Arsenal</h3>
+      <p>Repozytorium stworzonych artefaktow — gotowych do uzycia w dowolnym projekcie.</p>
+      <span class="tag">storage</span>
+      <span class="tag">reuse</span>
+    </div>
+    <div class="module-card">
+      <div class="icon">&#128300;</div>
+      <h3>Lab</h3>
+      <p>Laboratorium badawcze — eksperymenty, sandbox, dziennik odkryc. Miejsce na nauke i eksploracje.</p>
+      <span class="tag">research</span>
+      <span class="tag">experiments</span>
+    </div>
+    <div class="module-card">
+      <div class="icon">&#128194;</div>
+      <h3>Projects</h3>
+      <p>Przestrzenie projektowe z wlasnymi manifestami i deklaracjami kontekstow. Szablony dla nowych projektow.</p>
+      <span class="tag">workspace</span>
+      <span class="tag">deploy</span>
+    </div>
+  </div>
+</div>
+
+<!-- STRUCTURE -->
+<div class="view" id="structure">
+  <div class="info-section">
+    <h2>Struktura Katalogow</h2>
+    <p>Jeden zarejestrowany skill (orchestrator) + self-contained project folder.</p>
+  </div>
+  <div class="tree">
+<span class="folder">.claude/skills/forge/</span>
+<br>&nbsp;&nbsp;<span class="file">SKILL.md</span> <span class="comment">← Orchestrator (jedyny zarejestrowany skill)</span>
+<br>
+<br><span class="folder highlight">00_aLearning/forge/</span> <span class="comment">← Caly projekt zyje tutaj</span>
+<br>&nbsp;&nbsp;│
+<br>&nbsp;&nbsp;├── <span class="folder">core/</span> <span class="comment">← Silnik FORGE</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="file">context-engine.md</span> <span class="comment">← Instrukcje rozwiazywania kontekstow</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="folder">smiths/</span> <span class="comment">← Moduly fabryki</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="file">prompt-smith.md</span> <span class="comment">← Tworzy prompty</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="file">skill-smith.md</span> <span class="comment">← Tworzy skille</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="file">tool-smith.md</span> <span class="comment">← Tworzy narzedzia</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="file">agent-smith.md</span> <span class="comment">← Tworzy subagentow</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="folder">templates/</span> <span class="comment">← Blueprinty</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="file">skill.tpl.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="file">tool.tpl.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="file">prompt.tpl.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="file">context.tpl.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="file">experiment.tpl.md</span>
+<br>&nbsp;&nbsp;│
+<br>&nbsp;&nbsp;├── <span class="folder">contexts/</span> <span class="comment">← Drzewo dziedziczenia</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="file highlight">_.ctx.md</span> <span class="comment">← ROOT — korzen wszystkiego</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="folder">creative/</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="file">_.ctx.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="folder">visual/</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="file">_.ctx.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="file">image-gen.ctx.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="file">video-gen.ctx.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="folder">audio/</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="file">_.ctx.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="file">voice-gen.ctx.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="folder">technical/</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="file">_.ctx.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="file">prompt-engineering.ctx.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="file">context-engineering.ctx.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="folder">research/</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="file">_.ctx.md</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="file">cowork-exploration.ctx.md</span>
+<br>&nbsp;&nbsp;│
+<br>&nbsp;&nbsp;├── <span class="folder">arsenal/</span> <span class="comment">← Repozytorium artefaktow</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="folder">skills/</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="folder">tools/</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="folder">agents/</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="folder">prompts/</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="folder">by-target/</span> <span class="comment">← gemini/ veo3/ elevenlabs/ ...</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="folder">by-purpose/</span> <span class="comment">← research/ creative/ technical/</span>
+<br>&nbsp;&nbsp;│
+<br>&nbsp;&nbsp;├── <span class="folder">lab/</span> <span class="comment">← Laboratorium</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="folder">experiments/</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;├── <span class="folder">sandbox/</span>
+<br>&nbsp;&nbsp;│&nbsp;&nbsp;&nbsp;└── <span class="folder">journal/</span>
+<br>&nbsp;&nbsp;│
+<br>&nbsp;&nbsp;└── <span class="folder">projects/</span> <span class="comment">← Przestrzenie projektowe</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="folder">_template/</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;├── <span class="file">manifest.md</span>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;└── <span class="folder">workspace/</span>
+  </div>
+</div>
+
+<!-- CONTEXT INHERITANCE -->
+<div class="view" id="inheritance">
+  <div class="info-section">
+    <h2>Context Inheritance</h2>
+    <p>Konteksty dziedzicza jak klasy w OOP. Kazdy <code>_.ctx.md</code> to "index" folderu — automatycznie dziedziczy po rodzicu. Konteksty kaskaduja od og&oacute;lnych do szczeg&oacute;lnych, jak style CSS.</p>
+  </div>
+
+  <div class="inheritance-visual">
+    <div class="ctx-node root">_.ctx.md (ROOT)</div>
+    <div class="ctx-arrow">├── inherits ──▶</div>
+
+    <div class="ctx-level">
+      <div class="ctx-node branch">creative/_.ctx.md</div>
+      <div class="ctx-arrow">├── inherits ──▶</div>
+
+      <div class="ctx-level">
+        <div class="ctx-node branch">visual/_.ctx.md</div>
+        <div class="ctx-arrow">├── inherits ──▶</div>
+
+        <div class="ctx-level">
+          <div class="ctx-node leaf">image-gen.ctx.md</div>
+          <br>
+          <div class="ctx-node leaf">video-gen.ctx.md</div>
+        </div>
+      </div>
+
+      <div class="ctx-level" style="margin-top: 10px;">
+        <div class="ctx-node branch">audio/_.ctx.md</div>
+        <div class="ctx-arrow">├── inherits ──▶</div>
+
+        <div class="ctx-level">
+          <div class="ctx-node leaf">voice-gen.ctx.md</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ctx-level" style="margin-top: 15px; border-left-color: #333;">
+      <div class="ctx-node branch">technical/_.ctx.md</div>
+      <div class="ctx-arrow">├── inherits ──▶</div>
+
+      <div class="ctx-level">
+        <div class="ctx-node leaf">prompt-engineering.ctx.md</div>
+        <br>
+        <div class="ctx-node leaf">context-engineering.ctx.md</div>
+      </div>
+    </div>
+
+    <div class="ctx-level" style="margin-top: 15px; border-left-color: #333;">
+      <div class="ctx-node branch">research/_.ctx.md</div>
+      <div class="ctx-arrow">├── inherits ──▶</div>
+
+      <div class="ctx-level">
+        <div class="ctx-node leaf">cowork-exploration.ctx.md</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="info-section" style="margin-top: 20px;">
+    <h2>Przyklad kompilacji kontekstu</h2>
+    <div class="example-flow">
+      <span class="user">User: "Stworz prompt do Veo3 — kot w kosmosie"</span>
+      <br><br>
+      <span class="step">1. Context Engine starts resolution...</span>
+      <br><span class="step">2. Read: contexts/_.ctx.md</span> <span class="comment">← bazowe zasady tworzenia</span>
+      <br><span class="step">3. Read: contexts/creative/_.ctx.md</span> <span class="comment">← rozszerzenie kreatywne</span>
+      <br><span class="step">4. Read: contexts/creative/visual/_.ctx.md</span> <span class="comment">← specyfika wizualna</span>
+      <br><span class="step">5. Read: contexts/creative/visual/video-gen.ctx.md</span> <span class="comment">← detale wideo + Veo3</span>
+      <br><br>
+      <span class="result">Compiled context = merge(root + creative + visual + video-gen)</span>
+      <br><span class="result">→ Prompt-Smith receives full context chain + user intent</span>
+    </div>
+  </div>
+</div>
+
+<!-- SMITHS -->
+<div class="view" id="smiths">
+  <div class="info-section">
+    <h2>Smith Modules — Fabryka Artefaktow</h2>
+    <p>Kazdy Smith to wyspecjalizowany modul tworzenia. Wszystkie korzystaja z Context Engine i zapisuja wyniki do Arsenal.</p>
+  </div>
+
+  <div class="modules-grid">
+    <div class="module-card">
+      <div class="icon">&#128172;</div>
+      <h3>Prompt-Smith</h3>
+      <p>Opisujesz po swojemu co chcesz osiagnac. Prompt-Smith kompiluje odpowiedni kontekst, analizuje intencje, i generuje zoptymalizowany prompt pod docelowe AI.</p>
+      <p style="margin-top: 12px; color: #50fa7b; font-family: monospace; font-size: 0.8em;">
+        "Chce filmik z kotem w kosmosie"
+        <br>→ [kontekst: creative/visual/video-gen]
+        <br>→ cinematic prompt optimized for Veo3
+      </p>
+      <span class="tag">najczesciej uzywany</span>
+      <span class="tag">multi-target</span>
+    </div>
+
+    <div class="module-card">
+      <div class="icon">&#128736;</div>
+      <h3>Skill-Smith</h3>
+      <p>Tworzy kompletne skille Cowork — SKILL.md, skrypty, referencje. Integruje sie z systemem ewaluacji skill-creator.</p>
+      <p style="margin-top: 12px; color: #50fa7b; font-family: monospace; font-size: 0.8em;">
+        "Skill do analizy PDF-ow badawczych"
+        <br>→ SKILL.md + scripts/ + references/
+        <br>→ registered in .claude/skills/
+      </p>
+      <span class="tag">cowork-native</span>
+      <span class="tag">eval-ready</span>
+    </div>
+
+    <div class="module-card">
+      <div class="icon">&#128295;</div>
+      <h3>Tool-Smith</h3>
+      <p>Tworzy standalone narzedzia — skrypty Python, bash, utility. Testuje w sandboxie przed zapisem do arsenalu.</p>
+      <p style="margin-top: 12px; color: #50fa7b; font-family: monospace; font-size: 0.8em;">
+        "Skrypt do batch rename plikow"
+        <br>→ Python script + docs
+        <br>→ tested in sandbox
+      </p>
+      <span class="tag">scripts</span>
+      <span class="tag">utilities</span>
+    </div>
+
+    <div class="module-card">
+      <div class="icon">&#129302;</div>
+      <h3>Agent-Smith</h3>
+      <p>Tworzy definicje subagentow — wyspecjalizowanych asystentow z wlasnym kontekstem, narzedziam i ograniczeniami.</p>
+      <p style="margin-top: 12px; color: #50fa7b; font-family: monospace; font-size: 0.8em;">
+        "Agent do review promptow"
+        <br>→ agent definition + context
+        <br>→ ready to spawn
+      </p>
+      <span class="tag">subagents</span>
+      <span class="tag">delegation</span>
+    </div>
+  </div>
+</div>
+
+<!-- FORGE LOOP -->
+<div class="view" id="flow">
+  <div class="info-section">
+    <h2>The Forge Loop</h2>
+    <p>Kazda praca w FORGE podlega cyklowi ciagiego doskonalenia.</p>
+  </div>
+
+  <div class="flow-container">
+    <div class="flow-box">
+      <h3>&#128161; THINK</h3>
+      <p>Zdefiniuj co chcesz osiagnac. Opisz naturalna mysl.</p>
+    </div>
+    <div class="flow-arrow">&#9660;</div>
+    <div class="flow-box">
+      <h3>&#128293; FORGE</h3>
+      <p>Stwórz artefakt: prompt, skill, tool, agent. Smith + Context Engine.</p>
+    </div>
+    <div class="flow-arrow">&#9660;</div>
+    <div class="flow-box">
+      <h3>&#128300; TEST</h3>
+      <p>Przetestuj w sandboxie. Sprawdz czy dziala jak zamierzono.</p>
+    </div>
+    <div class="flow-arrow">&#9660;</div>
+    <div class="flow-box">
+      <h3>&#128269; REFINE</h3>
+      <p>Ulepsz na podstawie wynikow. Iteruj az bedzie idealne.</p>
+    </div>
+    <div class="flow-arrow">&#9660;</div>
+    <div class="flow-box">
+      <h3>&#128640; DEPLOY</h3>
+      <p>Przenies do arsenalu lub bezposrednio do projektu docelowego.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ANALOGY -->
+<div class="view" id="analogy">
+  <div class="info-section">
+    <h2>Vibe Coding ↔ FORGE</h2>
+    <p>FORGE przenosi paradygmat vibe codingu na wszystko poza kodem. Pliki kontekstu to "kod zrodlowy", LLM to "runtime", a Context Engine to "kompilator".</p>
+  </div>
+
+  <table class="analogy-table">
+    <thead>
+      <tr>
+        <th>Concept</th>
+        <th>Vibe Coding</th>
+        <th>FORGE</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Config</td>
+        <td class="code-col">.cursorrules / CLAUDE.md</td>
+        <td class="forge-col">Orchestrator SKILL.md</td>
+      </tr>
+      <tr>
+        <td>Dependencies</td>
+        <td class="code-col">package.json</td>
+        <td class="forge-col">manifest.md</td>
+      </tr>
+      <tr>
+        <td>Source Code</td>
+        <td class="code-col">.js / .py / .ts</td>
+        <td class="forge-col">.ctx.md (context files)</td>
+      </tr>
+      <tr>
+        <td>Libraries</td>
+        <td class="code-col">node_modules/</td>
+        <td class="forge-col">arsenal/</td>
+      </tr>
+      <tr>
+        <td>Inheritance</td>
+        <td class="code-col">class extends</td>
+        <td class="forge-col">@inherits + _.ctx.md chain</td>
+      </tr>
+      <tr>
+        <td>Interfaces</td>
+        <td class="code-col">interface / type</td>
+        <td class="forge-col">.tpl.md (templates)</td>
+      </tr>
+      <tr>
+        <td>Build Output</td>
+        <td class="code-col">/dist</td>
+        <td class="forge-col">generated artifacts</td>
+      </tr>
+      <tr>
+        <td>Tests</td>
+        <td class="code-col">*.test.js</td>
+        <td class="forge-col">lab/experiments/</td>
+      </tr>
+      <tr>
+        <td>IDE Plugins</td>
+        <td class="code-col">VS Code extensions</td>
+        <td class="forge-col">Smith modules</td>
+      </tr>
+      <tr>
+        <td>Linter</td>
+        <td class="code-col">ESLint / Prettier</td>
+        <td class="forge-col">Prompt validator</td>
+      </tr>
+      <tr>
+        <td>Compilation</td>
+        <td class="code-col">tsc / webpack</td>
+        <td class="forge-col">Context Resolution</td>
+      </tr>
+      <tr>
+        <td>Runtime</td>
+        <td class="code-col">Node.js / Browser</td>
+        <td class="forge-col">LLM (Claude)</td>
+      </tr>
+      <tr>
+        <td>Versioning</td>
+        <td class="code-col">Git</td>
+        <td class="forge-col">Discovery Journal</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- PRINCIPLES -->
+<div class="view" id="principles">
+  <div class="info-section">
+    <h2>Zasady FORGE</h2>
+  </div>
+
+  <div class="principle">
+    <div class="num">01</div>
+    <div class="text"><strong>Context is Code</strong> — Pliki kontekstu to program. Traktuj je z taka sama dyscyplina jak kod zrodlowy. Kazda zmiana w kontekscie zmienia zachowanie systemu.</div>
+  </div>
+
+  <div class="principle">
+    <div class="num">02</div>
+    <div class="text"><strong>Progressive Disclosure</strong> — Laduj tylko to co potrzebne. Orchestrator → modul → szczegoly. Nie zasmiecaj kontekstu informacjami, ktore nie sa teraz potrzebne.</div>
+  </div>
+
+  <div class="principle">
+    <div class="num">03</div>
+    <div class="text"><strong>Inheritance over Repetition</strong> — Nigdy nie powtarzaj kontekstu. Dziedzicz i rozszerzaj. DRY principle przeniesiony na natural language.</div>
+  </div>
+
+  <div class="principle">
+    <div class="num">04</div>
+    <div class="text"><strong>Arsenal First</strong> — Kazdy stworzony artefakt trafia do arsenalu. Reuzywalnosc ponad jednorazowosc. Buduj biblioteke, nie jednorazowki.</div>
+  </div>
+
+  <div class="principle">
+    <div class="num">05</div>
+    <div class="text"><strong>Experiment Everything</strong> — Kazda nowa technika to potencjalny eksperyment. Dokumentuj odkrycia. Dziennik jest rownowazny z kodem.</div>
+  </div>
+
+  <div class="principle">
+    <div class="num">06</div>
+    <div class="text"><strong>Teach by Building</strong> — Sam projekt jest najlepszym tutorialem Claude Cowork. Budujac FORGE, uczysz sie systemu. Meta-learning w akcji.</div>
+  </div>
+</div>
+
+<script>
+function switchTab(viewId) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(viewId).classList.add('active');
+  event.target.classList.add('active');
+}
+</script>
+
+</body>
+</html>

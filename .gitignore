@@ -1,0 +1,36 @@
+# FORGE auto-generated output (regenerated each session)
+forge/.cache/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# Environment & secrets
+.env
+.env.*
+*.secret
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Claude Code local settings (machine-specific permissions)
+.claude/settings.local.json
+
+# Logs
+*.log
