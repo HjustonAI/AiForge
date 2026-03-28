@@ -25,7 +25,7 @@ Design decisions (from Review Team Meetings):
     - EXTEND: appends to existing section instead of replacing
     - Compiled output: generic → specific → CRITICAL (recency exploit)
     - Token estimation: word_count * 1.3
-    - Hard limits: max 4 source files, warn at 2500 tokens
+    - Hard limits: max 4 source files, warn at 4000 tokens
     - Fallback: no sections found → concatenate as single block
 """
 
@@ -40,7 +40,7 @@ from pathlib import Path
 # ─── Constants ────────────────────────────────────────────────────────────────
 
 MAX_SOURCE_FILES = 4
-TOKEN_WARN_THRESHOLD = 2500
+TOKEN_WARN_THRESHOLD = 4000
 TOKEN_MULTIPLIER = 1.3  # words → approximate tokens
 
 
@@ -282,12 +282,13 @@ def auto_select(target: str, contexts_dir: str) -> list:
             files.append(target_file)
         return files
 
-    # Parse _index.md — look for table rows matching target in tags
+    # Parse _index.md — look for table rows matching target in tags or name
     files = []
     master = os.path.join(contexts_dir, 'master.ctx.md')
     if os.path.exists(master):
         files.append(master)
 
+    found_via_index = False
     try:
         with open(index_path, 'r', encoding='utf-8') as f:
             index_content = f.read()
@@ -300,14 +301,29 @@ def auto_select(target: str, contexts_dir: str) -> list:
                 continue
             cells = [c.strip() for c in line.split('|')[1:-1]]
             if len(cells) >= 3:
+                name = cells[0].strip().lower()
                 path = cells[1].strip()
                 tags = cells[2].lower()
-                if target_lower in tags and path != 'master.ctx.md':
+                # Match against: exact name, target in tags, or any individual tag matches target
+                individual_tags = [t.strip() for t in tags.split(',')]
+                matches = (
+                    target_lower == name or           # exact name match
+                    target_lower in tags or            # substring in tags
+                    target_lower in individual_tags    # exact tag match
+                )
+                if matches and path != 'master.ctx.md':
                     full_path = os.path.join(contexts_dir, path)
                     if os.path.exists(full_path):
                         files.append(full_path)
+                        found_via_index = True
     except Exception as e:
         print(f"  WARN: Error reading _index.md: {e}", file=sys.stderr)
+
+    # Fallback: try direct file path if index didn't find anything
+    if not found_via_index:
+        target_file = os.path.join(contexts_dir, 'targets', f'{target}.ctx.md')
+        if os.path.exists(target_file):
+            files.append(target_file)
 
     return files
 
