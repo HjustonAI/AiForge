@@ -3,6 +3,7 @@
   tags: [tag1, tag2, tag3]
   priority: 7
   category: [generative | analytical | creative | voice]
+  last_validated: [YYYY-MM-DD]
 -->
 
 ## Mental Model
@@ -117,6 +118,12 @@ TOKEN BUDGET GUIDE:
 - Operating Environment is optional — skip for simple tools
 - When in doubt, invest tokens in Failure Modes & Repair
   (preventing bad prompts > describing ideal prompts)
+
+FRESHNESS:
+- last_validated: the date this context was last confirmed accurate
+- forge-init.sh warns when file modification > 30 days
+- validate_context.py checks for missing last_validated field
+- When a tool gets a major update, re-distill the ctx AND update the date
 
 CATEGORIES:
 - generative: video, image, 3D (visual output)

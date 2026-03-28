@@ -3,6 +3,7 @@
   tags: [gemini, deep-research, google, research, agent, analytical]
   priority: 7
   category: analytical
+  last_validated: 2026-03-27
 -->
 
 ## Mental Model

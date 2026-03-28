@@ -3,6 +3,7 @@
   tags: [veo3, veo, video, google, video-gen, generative, audio]
   priority: 6
   category: generative
+  last_validated: 2026-03-28
 -->
 
 ## Mental Model

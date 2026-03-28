@@ -5,5 +5,4 @@
 
 | Name | Target | Quality | Tags | Date | Path |
 |------|--------|---------|------|------|------|
-| cosmic-cat | veo3 | 9/10 | space, cat, cinematic, slow-motion, nebula | 2026-03-26 | prompts/veo3-cosmic-cat.md |
 | gemini-deep-research-veo3-guide | gemini-deep-research | 7/10 | research, veo3, guide, ctx-building, deep-research | 2026-03-28 | prompts/gemini-deep-research-veo3-guide.md |
