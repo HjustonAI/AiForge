@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FORGE Context Validator v0.1
+FORGE Context Validator v0.2
 Structural validation for .ctx.md target context files.
 
 Checks format, section completeness, token budget, and CRITICAL rule quality.
@@ -153,6 +153,32 @@ def check_meta(meta: dict) -> list:
     return results
 
 
+def check_freshness(meta: dict) -> list:
+    """Check if context has freshness metadata and if it's stale."""
+    results = []
+
+    last_validated = meta.get('last_validated', '')
+    if not last_validated:
+        results.append(('WARN', 'Missing meta field: last_validated (YYYY-MM-DD) — cannot track freshness'))
+        return results
+
+    try:
+        from datetime import datetime
+        validated_date = datetime.strptime(str(last_validated).strip(), '%Y-%m-%d')
+        age_days = (datetime.now() - validated_date).days
+
+        if age_days > 90:
+            results.append(('WARN', f'Context is {age_days} days since last validation — likely stale, recommend re-distillation'))
+        elif age_days > 60:
+            results.append(('INFO', f'Context is {age_days} days since last validation — consider reviewing'))
+        else:
+            results.append(('OK', f'Context validated {age_days} days ago'))
+    except ValueError:
+        results.append(('WARN', f'Invalid last_validated date format: "{last_validated}" (expected YYYY-MM-DD)'))
+
+    return results
+
+
 def check_sections(sections: dict) -> list:
     """Validate required sections are present."""
     results = []
@@ -285,6 +311,7 @@ def validate(filepath: str, strict: bool = False) -> dict:
 
     all_results = []
     all_results.extend(check_meta(meta))
+    all_results.extend(check_freshness(meta))
     all_results.extend(check_sections(sections))
     all_results.extend(check_section_sizes(sections))
     all_results.extend(check_tokens(content))
