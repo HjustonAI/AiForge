@@ -891,26 +891,30 @@ Faza 3 (deferred):
 ## Implementation Checklist
 
 ```
-FAZA 1 — CRITICAL
-[ ] CREATE  forge/core/chunk-reader.py
-[ ] MODIFY  .claude/skills/forge/SKILL.md — DISTILL STEP 3 (large file protocol)
-[ ] MODIFY  .claude/skills/forge/SKILL.md — STEP 3 (compile gate + blocking)
-[ ] MODIFY  .claude/skills/forge/SKILL.md — new PLATFORM CONSTRAINTS section
-[ ] MODIFY  forge/core/context-smith.md — Coverage Verification section
+FAZA 1 — CRITICAL ✅ (implemented 2026-03-29)
+[x] CREATE  forge/core/chunk-reader.py
+[x] MODIFY  .claude/skills/forge/SKILL.md — DISTILL STEP 3 (large file protocol)
+[x] MODIFY  .claude/skills/forge/SKILL.md — STEP 3 (compile gate + blocking)
+[x] MODIFY  .claude/skills/forge/SKILL.md — new PLATFORM CONSTRAINTS section
+[x] MODIFY  forge/core/context-smith.md — Coverage Verification section
 
-FAZA 2 — IMPORTANT
-[ ] MODIFY  forge/core/forge-init.sh — full v0.2 rewrite
-[ ] CREATE  forge/core/arsenal-sync.py
-[ ] MODIFY  .claude/skills/forge/SKILL.md — new STEP 3.5 (Arsenal Reference)
-[ ] MODIFY  forge/core/prompt-smith.md — Active Arsenal Awareness
-[ ] MODIFY  forge/core/context-smith.md — Coverage-capped quality assessment
-[ ] MODIFY  forge/contexts/_template.ctx.md — last_validated in meta
-[ ] MODIFY  forge/core/validate_context.py — check_freshness function
-[ ] MODIFY  .claude/skills/forge/SKILL.md — STEP 0 freshness info + DISTILL STEP 5 date
+FAZA 2 — IMPORTANT ✅ (implemented 2026-03-29)
+[x] MODIFY  forge/core/forge-init.sh — full v0.2 rewrite
+[x] CREATE  forge/core/arsenal-sync.py
+[x] MODIFY  .claude/skills/forge/SKILL.md — new STEP 3.5 (Arsenal Reference)
+[x] MODIFY  forge/core/prompt-smith.md — Active Arsenal Awareness
+[x] MODIFY  forge/core/context-smith.md — Coverage-capped quality assessment
+[x] MODIFY  forge/contexts/_template.ctx.md — last_validated in meta
+[x] MODIFY  forge/core/validate_context.py — check_freshness function
+[x] MODIFY  .claude/skills/forge/SKILL.md — STEP 0 freshness info + DISTILL STEP 5 date
 
-FAZA 3 — DEFERRED
-[ ] DESIGN  forge/core/arsenal-analyze.py (trigger: 10+ prompts per target)
-[ ] MODIFY  .claude/skills/forge/SKILL.md — Session Close reporting
+FAZA 3 — PARTIAL ✅ (2026-03-29)
+[ ] DESIGN  forge/core/arsenal-analyze.py (DEFERRED — trigger: 10+ prompts per target)
+[x] MODIFY  .claude/skills/forge/SKILL.md — Session Close reporting
+[x] FIX     .claude/skills/forge/SKILL.md — duplicate "Read the output" in STEP 0
+[x] FIX     forge/arsenal/_index.md — removed ghost entry (cosmic-cat)
+[x] ADD     last_validated to existing ctx files (veo3, gemini-deep-research)
+[x] ADD     forge:sync command to POWER USER COMMANDS table
 ```
 
 ## Version Bump

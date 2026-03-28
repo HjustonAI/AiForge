@@ -62,7 +62,7 @@ mkdir -p forge/{core,contexts/targets,arsenal/prompts,.cache}
 ```
 Then inform the user this is their first FORGE session and proceed normally.
 
-Read the output. Pay attention to:
+Pay attention to:
 - **GHOST entries** — index/file mismatches. Fix with: `PYTHONIOENCODING=utf-8 python forge/core/arsenal-sync.py forge --fix`
 - **STALE contexts** — outdated knowledge. Suggest re-distillation to user.
 - **Sync errors** — run `PYTHONIOENCODING=utf-8 python forge/core/arsenal-sync.py forge --check` for details.
@@ -361,6 +361,7 @@ Never fail. Always produce output:
 | `forge:list arsenal` | List all saved prompts with ratings |
 | `forge:save` | Save last generated prompt to arsenal |
 | `forge:template` | Show the context template for creating new contexts |
+| `forge:sync` | Run arsenal-sync.py to check and fix index/file mismatches |
 
 ## CONVERSATION STYLE
 
@@ -379,3 +380,13 @@ Never fail. Always produce output:
 - The validator (validate_context.py) checks STRUCTURE, not content quality. The test prompt is the quality proxy.
 - This is v0.2. Changes from v0.1: compile gate (blocking), plan mode handling,
   large file chunking, coverage tracking, arsenal-aware generation, freshness checks.
+
+## SESSION CLOSE (optional)
+
+If the session involved significant FORGE work, briefly report:
+- Prompts generated: [N]
+- Contexts created/updated: [N]
+- Arsenal additions: [N]
+- Estimated session overhead: [compiled ctx tokens] + [smith instruction tokens]
+
+This is informational — helps the user understand system cost over time.

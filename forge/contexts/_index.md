@@ -7,7 +7,6 @@
 |------|------|------|---------------|---------------|
 | master | master.ctx.md | base, universal, all-targets | ~600 | 2026-03-27 |
 | veo3 | targets/veo3.ctx.md | veo3, veo, video, google, video-gen, audio | ~2028 | 2026-03-28 |
-| gemini-deep-research | targets/gemini-deep-research.ctx.md | gemini, deep-research, google, research, agent, analytical | ~2177 | 2026-03-27 |
 
 <!--
 Add new contexts here as they're created.
