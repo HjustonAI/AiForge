@@ -1,0 +1,9 @@
+---
+name: FORGE Pipeline Overview
+target: midjourney
+quality: 7/10
+date: 2026-04-03
+tags: infographic, pipeline, workflow, dark-mode, technical-diagram, system-design
+---
+
+A vertical dark-mode infographic poster on near-black background depicting an AI prompt engineering system as a six-stage vertical pipeline. The poster is divided into six equally-spaced horizontal bands stacked top to bottom. Band one: a dark rounded-corner card representing a chat input window, a green blinking cursor visible inside, a line of white monospace text suggesting user intent being typed. Band two: three flat file cards radiating diagonally from a central branch point like a fan, each card showing faint monospace code lines inside with a .ctx.md label at the top edge, representing knowledge context files being read. Band three: a hexagonal node where three thin circuit-trace lines converge from the cards above, the node radiating neon green light outward from within — the compilation step. Band four: a wide rounded card below containing clean white monospace paragraph text — the generated AI prompt output, denser and more polished than the code fragments above. Band five: a compact horizontal row of ten numbered circles with a bracket and glow highlighting the number ten, a small dark button labeled "save" at the far right. Band six: an open folder icon at the bottom with a neat stack of small document cards inside, the stack suggesting an accumulated archive. Thick downward-pointing neon green arrows connect each band. All elements rendered as flat vector UI components, precise geometric forms, zero photorealism. Neon green (#00ff66) edge glow on all cards is the only light source, casting soft halos into the surrounding dark space. Subtle film grain on background. No figures, no scenes, no photography. --ar 9:16 --s 450 --v 8
