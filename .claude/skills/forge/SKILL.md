@@ -249,6 +249,14 @@ Save to: `forge/arsenal/prompts/[target]-[short-name].md`
 
 Update the arsenal index: `forge/arsenal/_index.md`
 
+**Auto-commit to GitHub (always run after saving):**
+
+```bash
+git add forge/arsenal/prompts/[target]-[short-name].md forge/arsenal/_index.md && git commit -m "forge: add [target]-[short-name] prompt (quality: [N]/10)" && git push
+```
+
+Replace `[target]`, `[short-name]`, `[N]` with actual values. If push fails (no remote, no auth), skip silently — the commit itself is still local history.
+
 ---
 
 ## DISTILL MODE — Context-Smith Workflow
@@ -330,6 +338,14 @@ Ask: "Kontekst gotowy. Test prompt poniżej — czy jakość odpowiada? Poprawki
 
 1. Update `forge/contexts/_index.md` — add new entry to the table
 2. Inform: "Kontekst [target] aktywny. Od teraz forge:prompt [target] używa nowej wiedzy."
+
+**Auto-commit to GitHub (always run after finalizing):**
+
+```bash
+git add forge/contexts/targets/[target].ctx.md forge/contexts/_index.md && git commit -m "forge: add [target] context (distilled [YYYY-MM-DD])" && git push
+```
+
+Replace `[target]` and date with actual values. If push fails (no remote, no auth), skip silently — the commit itself is still local history.
 
 If the source material contained valuable prompt templates, mention:
 "Materiał źródłowy zawiera [N] szablonów promptów. Chcesz je zapisać do arsenału?"
