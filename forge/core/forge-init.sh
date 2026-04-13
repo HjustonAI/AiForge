@@ -1,10 +1,12 @@
 #!/bin/bash
-# FORGE Session Init — Warm Start Script v0.2
+# FORGE Session Init — Warm Start Script v0.3
 # Generates a quick snapshot of FORGE state for session context.
 # Called by Orchestrator at session start.
 #
 # Usage: bash forge/core/forge-init.sh [forge-root-dir]
 #
+# Changes in v0.3:
+#   - Added seeds/ count and listing to snapshot
 # Changes in v0.2:
 #   - Replaced grep -P with POSIX-compatible grep -E
 #   - Added index/file sync validation (ghost entry detection)
@@ -31,6 +33,13 @@ fi
 # Arsenal count (actual files, not index entries)
 ARSENAL_COUNT=$(find "$FORGE_DIR/arsenal/prompts" -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
 echo "Arsenal: ${ARSENAL_COUNT} prompts"
+
+# Seeds count and list
+SEEDS_COUNT=$(find "$FORGE_DIR/seeds" -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+if [ "$SEEDS_COUNT" -gt 0 ]; then
+    SEEDS_LIST=$(find "$FORGE_DIR/seeds" -name '*.md' 2>/dev/null | while read -r f; do basename "$f" .md; done | tr '\n' ', ' | sed 's/,$//')
+    echo "Seeds: ${SEEDS_COUNT} files (${SEEDS_LIST})"
+fi
 
 # Top-rated arsenal items (if any exist)
 if [ "$ARSENAL_COUNT" -gt 0 ]; then
