@@ -10,6 +10,7 @@
 | gemini-deep-research | targets/gemini-deep-research.ctx.md | gemini, deep-research, google, research, agent, analytical | ~2048 | 2026-03-29 |
 | claude-cowork | targets/claude-cowork.ctx.md | cowork, agent, workflow, desktop, orchestration, multi-agent, skills, plugins | ~1868 | 2026-03-29 |
 | midjourney | targets/midjourney.ctx.md | midjourney, mj, midja, image-generation, diffusion, photorealism, typography, v8-alpha | ~2103 | 2026-04-03 |
+| llm-wiki | targets/llm-wiki.ctx.md | llm-wiki, karpathy, wiki, knowledge-base, agentic-ide, setup-prompt, claude-code, codex | ~1992 | 2026-04-13 |
 
 <!--
 Add new contexts here as they're created.
