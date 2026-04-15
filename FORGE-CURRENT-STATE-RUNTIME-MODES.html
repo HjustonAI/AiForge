@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FORGE Current State Runtime Modes</title>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #020617;
+      --panel: #0f172a;
+      --panel-border: #1e293b;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+
+      --frontend-fill: rgba(8, 51, 68, 0.4);
+      --frontend-stroke: #22d3ee;
+      --backend-fill: rgba(6, 78, 59, 0.4);
+      --backend-stroke: #34d399;
+      --database-fill: rgba(76, 29, 149, 0.4);
+      --database-stroke: #a78bfa;
+      --aws-fill: rgba(120, 53, 15, 0.3);
+      --aws-stroke: #fbbf24;
+      --security-fill: rgba(136, 19, 55, 0.4);
+      --security-stroke: #fb7185;
+      --bus-fill: rgba(251, 146, 60, 0.3);
+      --bus-stroke: #fb923c;
+      --external-fill: rgba(30, 41, 59, 0.5);
+      --external-stroke: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "JetBrains Mono", monospace;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(52, 211, 153, 0.08), transparent 34%),
+        radial-gradient(circle at 85% 16%, rgba(251, 146, 60, 0.08), transparent 36%),
+        radial-gradient(circle at 45% 95%, rgba(251, 113, 133, 0.07), transparent 40%),
+        var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 28px 18px 40px;
+    }
+
+    .wrap {
+      max-width: 1500px;
+      margin: 0 auto;
+    }
+
+    .header {
+      margin-bottom: 16px;
+    }
+
+    .status-line {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #86efac;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22d3ee;
+      box-shadow: 0 0 14px rgba(34, 211, 238, 0.7);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+
+    h1 {
+      font-size: 27px;
+      font-weight: 700;
+      letter-spacing: 0.01em;
+      margin-bottom: 7px;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 980px;
+      line-height: 1.5;
+    }
+
+    .diagram-shell {
+      margin-top: 18px;
+      background: rgba(15, 23, 42, 0.75);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 12px;
+      box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.05), 0 20px 40px rgba(2, 6, 23, 0.5);
+    }
+
+    svg {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      background: #020617;
+    }
+
+    .cards {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: rgba(15, 23, 42, 0.88);
+      border: 1px solid var(--panel-border);
+      border-radius: 12px;
+      padding: 14px;
+      min-height: 130px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .card-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12);
+      flex: 0 0 auto;
+    }
+
+    .dot-prompt { background: var(--frontend-stroke); }
+    .dot-distill { background: var(--backend-stroke); }
+    .dot-wiki { background: var(--aws-stroke); }
+
+    .card h3 {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .card ul {
+      list-style: none;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.55;
+    }
+
+    .card li {
+      margin-bottom: 3px;
+    }
+
+    .footer {
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 10px;
+      letter-spacing: 0.02em;
+      opacity: 0.95;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.75; }
+      50% { transform: scale(1.12); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.75; }
+    }
+
+    @media (max-width: 1180px) {
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header class="header">
+      <div class="status-line">
+        <span class="status-dot"></span>
+        <span>runtime execution map</span>
+      </div>
+      <h1>FORGE v0.3 - Runtime Mode Pipelines</h1>
+      <p class="subtitle">Operational flow diagram for Prompt mode, Distill mode, and Wiki Deploy mode, including approval gates and file outputs in the current Forge implementation.</p>
+    </header>
+
+    <section class="diagram-shell">
+      <svg viewBox="0 0 1520 900" role="img" aria-label="FORGE runtime mode flow diagram">
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#1e293b" stroke-width="0.5" />
+          </pattern>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#64748b" />
+          </marker>
+          <marker id="arrowhead-auth" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+            <polygon points="0 0, 10 3.5, 0 7" fill="#fb7185" />
+          </marker>
+        </defs>
+
+        <rect x="0" y="0" width="1520" height="900" fill="#020617" />
+        <rect x="0" y="0" width="1520" height="900" fill="url(#grid)" />
+
+        <g stroke="#64748b" stroke-width="1.4" fill="none" marker-end="url(#arrowhead)">
+          <path d="M 170 190 L 220 190" />
+          <path d="M 400 190 L 450 190" />
+          <path d="M 630 190 L 650 190" />
+          <path d="M 770 190 L 790 190" />
+          <path d="M 970 190 L 1010 190" />
+          <path d="M 1190 190 L 1230 190" />
+
+          <path d="M 170 380 L 220 380" />
+          <path d="M 400 380 L 450 380" />
+          <path d="M 630 380 L 650 380" />
+          <path d="M 770 380 L 790 380" />
+          <path d="M 970 380 L 1010 380" />
+          <path d="M 1190 380 L 1230 380" />
+
+          <path d="M 170 585 L 220 585" />
+          <path d="M 400 585 L 450 585" />
+          <path d="M 630 585 L 650 585" />
+          <path d="M 770 585 L 790 585" />
+          <path d="M 970 585 L 1010 585" />
+          <path d="M 1190 585 L 1230 585" />
+
+          <path d="M 1360 420 L 1360 500 L 1010 500 L 1010 380" />
+        </g>
+
+        <g stroke="#fb7185" stroke-width="1.4" fill="none" stroke-dasharray="5,4" marker-end="url(#arrowhead-auth)">
+          <path d="M 890 190 L 890 248 L 1100 248 L 1100 230" />
+          <path d="M 890 585 L 940 585" />
+        </g>
+
+        <rect x="180" y="100" width="1300" height="570" rx="12" fill="none" stroke="#fbbf24" stroke-width="2" stroke-dasharray="8,4" />
+        <text x="830" y="124" fill="#fbbf24" font-size="9" text-anchor="middle">FORGE RUNTIME SURFACE  prompt mode | distill mode | wiki deploy mode</text>
+
+        <rect x="180" y="140" width="1300" height="100" rx="10" fill="none" stroke="#1e293b" stroke-width="1.2" />
+        <rect x="180" y="330" width="1300" height="100" rx="10" fill="none" stroke="#1e293b" stroke-width="1.2" />
+        <rect x="180" y="535" width="1300" height="100" rx="10" fill="none" stroke="#1e293b" stroke-width="1.2" />
+
+        <text x="192" y="156" fill="#22d3ee" font-size="8">PROMPT MODE</text>
+        <text x="192" y="346" fill="#34d399" font-size="8">DISTILL MODE</text>
+        <text x="192" y="551" fill="#fbbf24" font-size="8">WIKI DEPLOY MODE</text>
+
+        <rect x="40" y="150" width="130" height="80" rx="6" fill="#0f172a" />
+        <rect x="40" y="150" width="130" height="80" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5" />
+        <text x="105" y="173" fill="white" font-size="12" font-weight="600" text-anchor="middle">Trigger</text>
+        <text x="105" y="188" fill="#94a3b8" font-size="9" text-anchor="middle">forge:prompt</text>
+        <text x="105" y="203" fill="#94a3b8" font-size="9" text-anchor="middle">or natural request</text>
+
+        <rect x="220" y="150" width="180" height="80" rx="6" fill="#0f172a" />
+        <rect x="220" y="150" width="180" height="80" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5" />
+        <text x="310" y="173" fill="white" font-size="12" font-weight="600" text-anchor="middle">Orchestrator</text>
+        <text x="310" y="188" fill="#94a3b8" font-size="9" text-anchor="middle">target routing</text>
+        <text x="310" y="203" fill="#94a3b8" font-size="9" text-anchor="middle">quickest-path gate</text>
+
+        <rect x="450" y="150" width="180" height="80" rx="6" fill="#0f172a" />
+        <rect x="450" y="150" width="180" height="80" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5" />
+        <text x="540" y="173" fill="white" font-size="12" font-weight="600" text-anchor="middle">compile_context.py</text>
+        <text x="540" y="188" fill="#94a3b8" font-size="9" text-anchor="middle">master + target merge</text>
+        <text x="540" y="203" fill="#94a3b8" font-size="9" text-anchor="middle">writes compiled.ctx.md</text>
+
+        <rect x="650" y="180" width="120" height="20" rx="4" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1" />
+        <text x="710" y="194" fill="#fb923c" font-size="7" text-anchor="middle">compiled ctx bus</text>
+
+        <rect x="790" y="150" width="180" height="80" rx="6" fill="#0f172a" />
+        <rect x="790" y="150" width="180" height="80" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5" />
+        <text x="880" y="173" fill="white" font-size="12" font-weight="600" text-anchor="middle">prompt-smith.md</text>
+        <text x="880" y="188" fill="#94a3b8" font-size="9" text-anchor="middle">single prompt synthesis</text>
+        <text x="880" y="203" fill="#94a3b8" font-size="9" text-anchor="middle">CRITICAL-rule aligned</text>
+
+        <rect x="1010" y="150" width="180" height="80" rx="6" fill="#0f172a" />
+        <rect x="1010" y="150" width="180" height="80" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5" />
+        <text x="1100" y="173" fill="white" font-size="12" font-weight="600" text-anchor="middle">arsenal prompts</text>
+        <text x="1100" y="188" fill="#94a3b8" font-size="9" text-anchor="middle">quality >= 8 references</text>
+        <text x="1100" y="203" fill="#94a3b8" font-size="9" text-anchor="middle">optional save on rating</text>
+
+        <rect x="1230" y="150" width="250" height="80" rx="6" fill="#0f172a" />
+        <rect x="1230" y="150" width="250" height="80" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5" />
+        <text x="1355" y="173" fill="white" font-size="12" font-weight="600" text-anchor="middle">Prompt Delivered</text>
+        <text x="1355" y="188" fill="#94a3b8" font-size="9" text-anchor="middle">copy-ready output</text>
+        <text x="1355" y="203" fill="#94a3b8" font-size="9" text-anchor="middle">save prompt + user score</text>
+
+        <rect x="40" y="340" width="130" height="80" rx="6" fill="#0f172a" />
+        <rect x="40" y="340" width="130" height="80" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5" />
+        <text x="105" y="363" fill="white" font-size="12" font-weight="600" text-anchor="middle">Trigger</text>
+        <text x="105" y="378" fill="#94a3b8" font-size="9" text-anchor="middle">forge:distill</text>
+        <text x="105" y="393" fill="#94a3b8" font-size="9" text-anchor="middle">research material</text>
+
+        <rect x="220" y="340" width="180" height="80" rx="6" fill="#0f172a" />
+        <rect x="220" y="340" width="180" height="80" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5" />
+        <text x="310" y="363" fill="white" font-size="12" font-weight="600" text-anchor="middle">chunk-reader.py</text>
+        <text x="310" y="378" fill="#94a3b8" font-size="9" text-anchor="middle">large source support</text>
+        <text x="310" y="393" fill="#94a3b8" font-size="9" text-anchor="middle">coverage accounting</text>
+
+        <rect x="450" y="340" width="180" height="80" rx="6" fill="#0f172a" />
+        <rect x="450" y="340" width="180" height="80" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5" />
+        <text x="540" y="363" fill="white" font-size="12" font-weight="600" text-anchor="middle">context-smith.md</text>
+        <text x="540" y="378" fill="#94a3b8" font-size="9" text-anchor="middle">two-pass distillation</text>
+        <text x="540" y="393" fill="#94a3b8" font-size="9" text-anchor="middle">quality grade + notes</text>
+
+        <rect x="650" y="370" width="120" height="20" rx="4" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1" />
+        <text x="710" y="384" fill="#fb923c" font-size="7" text-anchor="middle">coverage report bus</text>
+
+        <rect x="790" y="340" width="180" height="80" rx="6" fill="#0f172a" />
+        <rect x="790" y="340" width="180" height="80" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5" />
+        <text x="880" y="363" fill="white" font-size="12" font-weight="600" text-anchor="middle">validate_context.py</text>
+        <text x="880" y="378" fill="#94a3b8" font-size="9" text-anchor="middle">format + token checks</text>
+        <text x="880" y="393" fill="#94a3b8" font-size="9" text-anchor="middle">CRITICAL rule quality</text>
+
+        <rect x="1010" y="340" width="180" height="80" rx="6" fill="#0f172a" />
+        <rect x="1010" y="340" width="180" height="80" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5" />
+        <text x="1100" y="363" fill="white" font-size="12" font-weight="600" text-anchor="middle">compile test</text>
+        <text x="1100" y="378" fill="#94a3b8" font-size="9" text-anchor="middle">master + new target</text>
+        <text x="1100" y="393" fill="#94a3b8" font-size="9" text-anchor="middle">quality proxy prompt</text>
+
+        <rect x="1230" y="340" width="250" height="80" rx="6" fill="#0f172a" />
+        <rect x="1230" y="340" width="250" height="80" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5" />
+        <text x="1355" y="363" fill="white" font-size="12" font-weight="600" text-anchor="middle">contexts/targets update</text>
+        <text x="1355" y="378" fill="#94a3b8" font-size="9" text-anchor="middle">new .ctx.md persisted</text>
+        <text x="1355" y="393" fill="#94a3b8" font-size="9" text-anchor="middle">_index.md refreshed</text>
+
+        <rect x="40" y="540" width="130" height="90" rx="6" fill="#0f172a" />
+        <rect x="40" y="540" width="130" height="90" rx="6" fill="rgba(30, 41, 59, 0.5)" stroke="#94a3b8" stroke-width="1.5" />
+        <text x="105" y="563" fill="white" font-size="12" font-weight="600" text-anchor="middle">Trigger</text>
+        <text x="105" y="578" fill="#94a3b8" font-size="9" text-anchor="middle">forge:wiki topic</text>
+        <text x="105" y="593" fill="#94a3b8" font-size="9" text-anchor="middle">cwd detected</text>
+
+        <rect x="220" y="540" width="180" height="90" rx="6" fill="#0f172a" />
+        <rect x="220" y="540" width="180" height="90" rx="6" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1.5" />
+        <text x="310" y="563" fill="white" font-size="12" font-weight="600" text-anchor="middle">3-question wizard</text>
+        <text x="310" y="578" fill="#94a3b8" font-size="9" text-anchor="middle">domain | sources</text>
+        <text x="310" y="593" fill="#94a3b8" font-size="9" text-anchor="middle">agent platform</text>
+
+        <rect x="450" y="540" width="180" height="90" rx="6" fill="#0f172a" />
+        <rect x="450" y="540" width="180" height="90" rx="6" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1.5" />
+        <text x="540" y="563" fill="white" font-size="12" font-weight="600" text-anchor="middle">seed + context read</text>
+        <text x="540" y="578" fill="#94a3b8" font-size="9" text-anchor="middle">seeds/llm-wiki.md</text>
+        <text x="540" y="593" fill="#94a3b8" font-size="9" text-anchor="middle">target: llm-wiki.ctx.md</text>
+
+        <rect x="650" y="575" width="120" height="20" rx="4" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1" />
+        <text x="710" y="589" fill="#fb923c" font-size="7" text-anchor="middle">deploy plan bus</text>
+
+        <rect x="790" y="540" width="180" height="90" rx="6" fill="#0f172a" />
+        <rect x="790" y="540" width="180" height="90" rx="6" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1.5" />
+        <text x="880" y="563" fill="white" font-size="12" font-weight="600" text-anchor="middle">plan synthesis</text>
+        <text x="880" y="578" fill="#94a3b8" font-size="9" text-anchor="middle">tree + schema files</text>
+        <text x="880" y="593" fill="#94a3b8" font-size="9" text-anchor="middle">execution checklist</text>
+
+        <rect x="940" y="525" width="250" height="120" rx="8" fill="none" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="4,4" />
+        <text x="1065" y="548" fill="#fb7185" font-size="10" font-weight="600" text-anchor="middle">Approval Gate</text>
+        <text x="1065" y="563" fill="#94a3b8" font-size="9" text-anchor="middle">show plan first</text>
+        <text x="1065" y="578" fill="#94a3b8" font-size="9" text-anchor="middle">wait before writes</text>
+        <text x="1065" y="593" fill="#94a3b8" font-size="9" text-anchor="middle">explicit user consent required</text>
+
+        <rect x="1230" y="540" width="250" height="90" rx="6" fill="#0f172a" />
+        <rect x="1230" y="540" width="250" height="90" rx="6" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1.5" />
+        <text x="1355" y="563" fill="white" font-size="12" font-weight="600" text-anchor="middle">project scaffold in CWD</text>
+        <text x="1355" y="578" fill="#94a3b8" font-size="9" text-anchor="middle">mkdir + files + git init</text>
+        <text x="1355" y="593" fill="#94a3b8" font-size="9" text-anchor="middle">outside forge root by design</text>
+
+        <text x="1320" y="438" fill="#64748b" font-size="8">feedback loop: new contexts improve later prompt mode runs</text>
+
+        <rect x="40" y="710" width="1440" height="150" rx="10" fill="#0b1222" stroke="#1e293b" stroke-width="1.2" />
+        <text x="62" y="736" fill="white" font-size="12" font-weight="600">Legend</text>
+
+        <rect x="62" y="752" width="20" height="12" rx="3" fill="rgba(8, 51, 68, 0.4)" stroke="#22d3ee" stroke-width="1" />
+        <text x="92" y="761" fill="#94a3b8" font-size="8">Frontend / orchestration interaction</text>
+
+        <rect x="365" y="752" width="20" height="12" rx="3" fill="rgba(6, 78, 59, 0.4)" stroke="#34d399" stroke-width="1" />
+        <text x="395" y="761" fill="#94a3b8" font-size="8">Backend module step</text>
+
+        <rect x="580" y="752" width="20" height="12" rx="3" fill="rgba(76, 29, 149, 0.4)" stroke="#a78bfa" stroke-width="1" />
+        <text x="610" y="761" fill="#94a3b8" font-size="8">Knowledge store / persistent artifact</text>
+
+        <rect x="890" y="752" width="20" height="12" rx="3" fill="rgba(120, 53, 15, 0.3)" stroke="#fbbf24" stroke-width="1" />
+        <text x="920" y="761" fill="#94a3b8" font-size="8">Deploy boundary / external project output</text>
+
+        <rect x="1260" y="752" width="20" height="12" rx="3" fill="rgba(251, 146, 60, 0.3)" stroke="#fb923c" stroke-width="1" />
+        <text x="1290" y="761" fill="#94a3b8" font-size="8">Message bus connector</text>
+
+        <line x1="62" y1="791" x2="152" y2="791" stroke="#64748b" stroke-width="1.4" marker-end="url(#arrowhead)" />
+        <text x="162" y="794" fill="#94a3b8" font-size="8">Main pipeline flow</text>
+
+        <line x1="365" y1="791" x2="455" y2="791" stroke="#fb7185" stroke-width="1.4" stroke-dasharray="5,4" marker-end="url(#arrowhead-auth)" />
+        <text x="465" y="794" fill="#94a3b8" font-size="8">Approval-protected action</text>
+      </svg>
+    </section>
+
+    <section class="cards">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot dot-prompt"></div>
+          <h3>Prompt Mode</h3>
+        </div>
+        <ul>
+          <li>- Triggered by prompt generation requests and forge:prompt.</li>
+          <li>- Compiles master + target context before prompt-smith generation.</li>
+          <li>- Uses arsenal references and optional save with quality rating.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot dot-distill"></div>
+          <h3>Distill Mode</h3>
+        </div>
+        <ul>
+          <li>- Builds new target contexts from research material.</li>
+          <li>- Enforces structure and token checks before publishing.</li>
+          <li>- Feeds future prompt mode quality through updated context assets.</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-dot dot-wiki"></div>
+          <h3>Wiki Deploy Mode</h3>
+        </div>
+        <ul>
+          <li>- Triggered by forge:wiki with working-directory awareness.</li>
+          <li>- Uses llm-wiki seed and context to build deploy plan.</li>
+          <li>- Writes only after explicit user approval at the gate.</li>
+        </ul>
+      </div>
+    </section>
+
+    <p class="footer">Runtime basis: forge README mode definitions + core scripts (compile_context.py, validate_context.py, chunk-reader.py, forge-init.sh) | Date: 2026-04-14</p>
+  </main>
+</body>
+</html>
