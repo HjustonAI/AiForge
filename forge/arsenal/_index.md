@@ -23,3 +23,5 @@
 | knowledge-architecture-design | general | 10/10 | knowledge-management, architecture-graph, rag, brand24, ai-systems, organizational-knowledge | 2026-04-21 | prompts/general-knowledge-architecture-design.md |
 | brand24-video-production-continuation-pl | cowork | 9/10 | cowork, claude-code, video-production, hyperframes, brand24, asset-capture, chrome-automation, continuation-session, polish | 2026-04-23 | prompts/cowork-brand24-video-production-continuation-pl.md |
 | brand24-ai-shots-ideation | cowork | 7/10 | cowork, claude-code, video-production, kling3, seedance, ai-video, brand24, prompt-generation, shot-ideation, polish | 2026-04-23 | prompts/cowork-brand24-ai-shots-ideation.md |
+| brand24-video-production-pl | cowork | 9/10 | cowork, claude-code, video-production, saas-promo, hyperframes, brand24, remarketing, project-setup, polish | 2026-04-23 | prompts/cowork-brand24-video-production-pl.md |
+| brand24-video-production-en | cowork | 9/10 | cowork, claude-code, video-production, saas-promo, hyperframes, brand24, remarketing, project-setup, english | 2026-04-23 | prompts/cowork-brand24-video-production-en.md |
