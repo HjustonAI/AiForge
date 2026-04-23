@@ -19,3 +19,6 @@
 | v8-workflow-explore-narrow-polish | midjourney | 5/10 | workflow, iteration, pipeline, ideation, v8 | 2026-04-03 | prompts/midjourney-v8-workflow-explore-narrow-polish.md |
 | v8-workflow-typography-stress-test | midjourney | 5/10 | workflow, typography, text-rendering, debugging, v8 | 2026-04-03 | prompts/midjourney-v8-workflow-typography-stress-test.md |
 | v8-workflow-brand-locking | midjourney | 5/10 | workflow, brand, style-reference, sref, aesthetic, v8 | 2026-04-03 | prompts/midjourney-v8-workflow-brand-locking.md |
+| v2-meta-compose-bootstrap | general | n/a | v2, metaprompt, compose, bootstrap | 2026-04-15 | prompts/v2-meta-compose-bootstrap.md |
+| knowledge-architecture-design | general | 10/10 | knowledge-management, architecture-graph, rag, brand24, ai-systems, organizational-knowledge | 2026-04-21 | prompts/general-knowledge-architecture-design.md |
+| brand24-video-production-continuation-pl | cowork | 9/10 | cowork, claude-code, video-production, hyperframes, brand24, asset-capture, chrome-automation, continuation-session, polish | 2026-04-23 | prompts/cowork-brand24-video-production-continuation-pl.md |
