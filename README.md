@@ -205,6 +205,7 @@ python forge/core/compile_context.py forge/contexts/master.ctx.md forge/contexts
 | v0.2 | Planned (if >3 uses/week) | A/B test framework, tag-based selector, 5-8 contexts, multi-variant mode |
 | v0.3 | Conditional | Hybrid selector, context auto-evolution, Notion integration |
 | v1.0 | Vision | Adaptive selector, full feedback loop, multi-Smith factory |
+| v2 | Kickoff started | KMS framework, Compose/Distill/Deploy specs, meta prompt logging, inter-agent protocol, token strategy, phased implementation roadmap (`forge-review/FORGE-V2-IMPLEMENTATION-START.md`) |
 
 **Kill switch:** If FORGE is used fewer than 3 times per week over 30 days, the system is discontinued. Simplicity wins.
 
